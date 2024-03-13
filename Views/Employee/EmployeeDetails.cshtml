@@ -1,0 +1,162 @@
+﻿@model IEnumerable<EmployeeManagementSystem.Models.Employee>
+
+@{
+    ViewBag.Title = "EmployeeDetails";
+}
+<h2 class="text-center">Employee Details</h2>
+
+<div class="search-container">
+    <input type="text" id="searchInput" placeholder="Search by Employee Code..." onkeyup="searchEmployee()">
+</div>
+
+
+@using (Html.BeginForm("EmployeeDetails", "Employee", FormMethod.Post))
+{
+
+    <div class="search-container">
+        <input type="text" id="empCodeSearch" name="EmployeeCode" placeholder="Search by Employee Code...">
+        <input type="text" id="empNameSearch" name="Name" placeholder="Search by Name...">
+        <input type="text" id="empEmailSearch" name="EmailId" placeholder="Search by Email ID...">
+        <input type="text" id="empPhoneSearch" name="PhoneNo" placeholder="Search by Phone Number...">
+        <input type="text" id="empGenderSearch" name="Gender" placeholder="Search by Gender...">
+        <button type="submit">Search</button>
+        <button type="button" id="clearBtn">Clear</button>
+    </div>
+
+}
+
+
+<div class="grid-container">
+    <div class="grid-header">
+        <div class="grid-cell">Employee Code</div>
+        <div class="grid-cell">Name</div>
+        <div class="grid-cell">Email ID</div>
+        <div class="grid-cell">Phone Number</div>
+        <div class="grid-cell">Gender</div>
+    </div>
+    <div class="grid-body">
+        @foreach (var employee in Model)
+        {
+            <div class="grid-row">
+                <div class="grid-cell">@employee.EmployeeCode</div>
+                <div class="grid-cell">@employee.Name</div>
+                <div class="grid-cell">@employee.EmailId</div>
+                <div class="grid-cell">@employee.PhoneNo</div>
+                <div class="grid-cell">@employee.Gender</div>
+            </div>
+        }
+    </div>
+</div>
+<div>
+    @Html.ActionLink("Back to Home Page", "Index")
+</div>
+
+
+<style>
+    .grid-container {
+        display: grid;
+        grid-template-rows: auto 1fr;
+        border: 1px solid #ddd;
+        overflow: hidden;
+    }
+
+    .grid-header {
+        display: grid;
+        grid-template-columns: repeat(5, minmax(100px, 1fr));
+        background-color: #f9f9f9;
+        border-bottom: 1px solid #ddd;
+    }
+
+    .grid-body {
+        overflow: auto;
+        max-height: 300px;
+    }
+
+    .grid-row {
+        display: grid;
+        grid-template-columns: repeat(5, minmax(110px, 1fr));
+        border-bottom: 1px solid #ddd;
+    }
+
+    .grid-cell {
+        padding: 5px;
+        text-align: left;
+    }
+
+        .grid-cell:not(:last-child) {
+            border-right: 1px solid #ddd;
+        }
+
+
+    .odd-row {
+        background-color: #f9f9f9;
+    }
+
+    .even-row {
+        background-color: white;
+    }
+</style>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+    @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/bootstrap")
+<script>
+       
+         $(document).ready(function () {
+        $("#clearBtn").on("click", function () {
+            console.log("Clear pressed");
+            $("#empCodeSearch").val("");
+            $("#empNameSearch").val("");
+            $("#empEmailSearch").val("");
+            $("#empPhoneSearch").val("");
+            $("#empGenderSearch").val("");
+
+            $.ajax({
+                url: '@Url.Action("ClearSearch", "Employee")',
+                type: 'POST',
+                success: function (result) {
+                    // Update the grid with the cleared data
+                    $(".grid-body").html(result);
+                },
+                error: function (xhr, status, error) {
+                    console.error(xhr.responseText);
+                }
+            });
+        });
+
+            // Add odd and even row classes for alternating row colors
+            $('.grid-body').find('.grid-row:odd').addClass('odd-row');
+            $('.grid-body').find('.grid-row:even').addClass('even-row');
+        });
+
+        function searchEmployee() {
+            var input, filter, grid, rows, cells, i, j, txtValue, shouldDisplay;
+            input = document.getElementById("searchInput");
+            filter = input.value.toUpperCase();
+            grid = document.getElementsByClassName("grid-body")[0];
+            rows = grid.getElementsByClassName("grid-row");
+
+            for (i = 0; i < rows.length; i++) {
+                shouldDisplay = false;
+                cells = rows[i].getElementsByClassName("grid-cell");
+
+                for (j = 0; j < cells.length; j++) {
+                    txtValue = cells[j].textContent || cells[j].innerText;
+                    if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                        shouldDisplay = true;
+                        break; // Stop checking other cells if match found
+                    }
+                }
+
+                if (shouldDisplay) {
+                    rows[i].style.display = "";
+                } else {
+                    rows[i].style.display = "none";
+                }
+            }
+        }
+
+</script>
+}
+
